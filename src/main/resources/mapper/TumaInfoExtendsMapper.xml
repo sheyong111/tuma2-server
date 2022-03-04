@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.tuma.dao.mapper.TumaInfoMapper">
+    <resultMap id="SearchPartMap" type="org.tuma.vo.search.TumaSearchPart">
+        <result column="tuma_id" jdbcType="VARCHAR" property="tumaId" />
+        <result column="study" jdbcType="VARCHAR" property="study" />
+        <result column="project" jdbcType="VARCHAR" property="project" />
+        <result column="assay" jdbcType="VARCHAR" property="assay" />
+        <result column="sample" jdbcType="VARCHAR" property="sample" />
+        <result column="cancer" jdbcType="VARCHAR" property="cancer" />
+        <result column="treatment" jdbcType="VARCHAR" property="treatment" />
+        <result column="sex" jdbcType="VARCHAR" property="sex" />
+        <result column="age" jdbcType="VARCHAR" property="age" />
+        <result column="response" jdbcType="VARCHAR" property="response" />
+        <result column="treatment_subtype" jdbcType="VARCHAR" property="treatmentSubtype" />
+        <result column="geographic_location" jdbcType="VARCHAR" property="geographicLocation" />
+        <result column="instrument" jdbcType="VARCHAR" property="instrument" />
+        <result column="antibiotic" jdbcType="VARCHAR" property="antibiotic" />
+        <result column="timepoint" jdbcType="VARCHAR" property="timepoint" />
+        <result column="patient_id" jdbcType="VARCHAR" property="patientId" />
+    </resultMap>
+
+    <sql id="Search_List">
+        tuma_id, study, project, assay, sample, cancer, treatment, sex, age, response, treatment_subtype
+        geographic_location, instrument, antibiotic, timepoint, patient_id
+    </sql>
+
+    <sql id="Search_detail">
+        <where>
+            <if test="query.cancers != null">
+                and cancer in
+                <foreach collection="query.cancers" item="cancer" separator="," open="(" close=")">
+                    #{cancer,jdbcType=VARCHAR}
+                </foreach>
+            </if>
+            <if test="query.tumaIds != null">
+                and tuma_id in
+                    <foreach collection="query.tumaIds" item="tumaId" separator="," open="(" close=")">
+                        #{tumaId jdbcType=VARCHAR}
+                    </foreach>
+            </if>
+        </where>
+    </sql>
+    
+    <select id="searchByQuery" resultMap="SearchPartMap">
+        select
+        <include refid="Search_List" />
+        from tuma_info
+        <include refid="Search_detail" />
+        limit #{query.offset,jdbcType=INTEGER}, #{query.pageSize,jdbcType=INTEGER}
+    </select>
+    
+    <select id="countByQuery" resultMap="java.lang.Integer">
+        select count(id) from tuma_info
+        <include refid="Search_detail" />
+    </select>
+
+</mapper>
